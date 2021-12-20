@@ -12,6 +12,7 @@ struct GameEntity {
     name: String,
     position: Vector2,
     hp: i32,
+    godmode: bool,
 }
 
 impl GameEntity {
@@ -26,6 +27,7 @@ impl GameEntity {
                 .collect(),
             position: Vector2::rand(),
             hp: rng.gen_range(0..100),
+            godmode: rng.gen(),
         }
     }
 }
