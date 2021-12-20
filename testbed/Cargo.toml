@@ -1,0 +1,18 @@
+[package]
+name = "testbed"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies.egui-inspect]
+path = ".."
+
+[dependencies.egui-inspect-derive]
+path = "../egui-inspect-derive"
+
+[dependencies.eframe]
+git = "https://github.com/emilk/egui.git"
+
+[dependencies]
+rand = "0.8.4"
