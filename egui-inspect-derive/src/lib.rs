@@ -19,7 +19,7 @@ pub fn derive_inspect(input: TokenStream) -> TokenStream {
             }
             let name = input.ident;
             quote! {
-                impl Inspect for #name {
+                impl ::egui_inspect::Inspect for #name {
                     fn inspect(&mut self, ui: &mut egui::Ui, id_source: u64) {
                         egui::CollapsingHeader::new(stringify!(#name)).id_source(id_source).show(ui, |ui| {
                             #(#exprs)*
