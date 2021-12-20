@@ -23,6 +23,12 @@ impl<T: Inspect> Inspect for Vec<T> {
     }
 }
 
+impl Inspect for bool {
+    fn inspect(&mut self, ui: &mut egui::Ui, _id_source: u64) {
+        ui.checkbox(self, "");
+    }
+}
+
 macro_rules! impl_num_inspect {
     ($ty:ty) => {
         impl Inspect for $ty {
