@@ -14,7 +14,12 @@ struct GameEntity {
     hp: i32,
     godmode: bool,
     dir: Dir,
+    #[opaque]
+    #[allow(dead_code)]
+    something_opaque: MyOpaque,
 }
+
+struct MyOpaque;
 
 #[derive(Inspect, Clone, Copy, PartialEq)]
 enum Dir {
@@ -40,6 +45,7 @@ impl GameEntity {
             dir: *[Dir::North, Dir::East, Dir::South, Dir::West]
                 .choose(&mut rng)
                 .unwrap(),
+            something_opaque: MyOpaque,
         }
     }
 }

@@ -1,8 +1,19 @@
 use proc_macro::TokenStream;
 use quote::quote;
-use syn::{parse_macro_input, Data, DeriveInput};
+use syn::{parse_macro_input, Attribute, Data, DeriveInput};
 
-#[proc_macro_derive(Inspect)]
+fn opaque(attrs: &[Attribute]) -> bool {
+    for attr in attrs {
+        for seg in &attr.path.segments {
+            if seg.ident == "opaque" {
+                return true;
+            }
+        }
+    }
+    false
+}
+
+#[proc_macro_derive(Inspect, attributes(opaque))]
 pub fn derive_inspect(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
     let ty_ident = input.ident;
@@ -11,12 +22,21 @@ pub fn derive_inspect(input: TokenStream) -> TokenStream {
             let mut exprs = Vec::new();
             for (i, f) in s.fields.iter().enumerate() {
                 let name = f.ident.as_ref().unwrap();
-                exprs.push(quote! {
-                    ui.horizontal(|ui| {
-                        ui.label(stringify!(#name));
-                        self.#name.inspect(ui, #i as u64)
+                let opaque = opaque(&f.attrs);
+                if opaque {
+                    exprs.push(quote! {
+                        ui.horizontal(|ui| {
+                            ui.label(concat!(stringify!(#name), " <opaque>"));
+                        });
                     });
-                });
+                } else {
+                    exprs.push(quote! {
+                        ui.horizontal(|ui| {
+                            ui.label(stringify!(#name));
+                            self.#name.inspect(ui, #i as u64)
+                        });
+                    });
+                }
             }
             quote! {
                 egui::CollapsingHeader::new(stringify!(#ty_ident)).id_source(id_source).show(ui, |ui| {
