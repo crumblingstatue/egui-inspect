@@ -2,18 +2,31 @@ use proc_macro::TokenStream;
 use quote::quote;
 use syn::{parse_macro_input, Attribute, Data, DeriveInput};
 
-fn opaque(attrs: &[Attribute]) -> bool {
+enum FieldInspectKind {
+    /// Auto-inspected (it is assumed that the field implements Inspect)
+    Auto,
+    /// A function named by the token stream is called to inspect the field.
+    /// The function takes (thing: &mut T, ui: &mut Ui, id_source: u64)
+    WithFn(TokenStream),
+    /// Not visited, left alone.
+    /// Useful when you want to skip a field that doesn't implement Inspect.
+    Opaque,
+}
+
+fn inspect_kind(attrs: &[Attribute]) -> FieldInspectKind {
     for attr in attrs {
         for seg in &attr.path.segments {
             if seg.ident == "opaque" {
-                return true;
+                return FieldInspectKind::Opaque;
+            } else if seg.ident == "inspect_with" {
+                return FieldInspectKind::WithFn(attr.tokens.clone().into());
             }
         }
     }
-    false
+    FieldInspectKind::Auto
 }
 
-#[proc_macro_derive(Inspect, attributes(opaque))]
+#[proc_macro_derive(Inspect, attributes(opaque, inspect_with))]
 pub fn derive_inspect(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
     let ty_ident = input.ident;
@@ -22,20 +35,31 @@ pub fn derive_inspect(input: TokenStream) -> TokenStream {
             let mut exprs = Vec::new();
             for (i, f) in s.fields.iter().enumerate() {
                 let name = f.ident.as_ref().unwrap();
-                let opaque = opaque(&f.attrs);
-                if opaque {
-                    exprs.push(quote! {
-                        ui.horizontal(|ui| {
-                            ui.label(concat!(stringify!(#name), " <opaque>"));
+                match inspect_kind(&f.attrs) {
+                    FieldInspectKind::Auto => {
+                        exprs.push(quote! {
+                            ui.horizontal(|ui| {
+                                ui.label(stringify!(#name));
+                                self.#name.inspect(ui, #i as u64)
+                            });
                         });
-                    });
-                } else {
-                    exprs.push(quote! {
-                        ui.horizontal(|ui| {
-                            ui.label(stringify!(#name));
-                            self.#name.inspect(ui, #i as u64)
+                    }
+                    FieldInspectKind::Opaque => {
+                        exprs.push(quote! {
+                            ui.horizontal(|ui| {
+                                ui.label(concat!(stringify!(#name), " <opaque>"));
+                            });
                         });
-                    });
+                    }
+                    FieldInspectKind::WithFn(ts) => {
+                        let ts: proc_macro2::TokenStream = ts.into();
+                        exprs.push(quote! {
+                            ui.horizontal(|ui| {
+                                ui.label(stringify!(#name));
+                                #ts(&mut self.#name, ui, #i as u64)
+                            });
+                        });
+                    }
                 }
             }
             quote! {

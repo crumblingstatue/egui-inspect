@@ -1,4 +1,7 @@
-use eframe::{egui, epi};
+use eframe::{
+    egui::{self, DragValue},
+    epi,
+};
 use egui_inspect::Inspect;
 use egui_inspect_derive::Inspect;
 use rand::{distributions::Alphanumeric, prelude::SliceRandom, thread_rng, Rng};
@@ -17,9 +20,18 @@ struct GameEntity {
     #[opaque]
     #[allow(dead_code)]
     something_opaque: MyOpaque,
+    #[inspect_with(custom_inspect)]
+    custom: MyOpaque,
 }
 
-struct MyOpaque;
+#[derive(Default)]
+struct MyOpaque {
+    data: i32,
+}
+
+fn custom_inspect(o: &mut MyOpaque, ui: &mut egui::Ui, _id_source: u64) {
+    ui.add(DragValue::new(&mut o.data));
+}
 
 #[derive(Inspect, Clone, Copy, PartialEq)]
 enum Dir {
@@ -45,7 +57,8 @@ impl GameEntity {
             dir: *[Dir::North, Dir::East, Dir::South, Dir::West]
                 .choose(&mut rng)
                 .unwrap(),
-            something_opaque: MyOpaque,
+            something_opaque: MyOpaque::default(),
+            custom: MyOpaque::default(),
         }
     }
 }
