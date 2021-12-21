@@ -30,14 +30,13 @@ impl Inspect for bool {
 }
 
 macro_rules! impl_num_inspect {
-    ($ty:ty) => {
-        impl Inspect for $ty {
+    ($($ty:ty),*) => {
+        $(impl Inspect for $ty {
             fn inspect(&mut self, ui: &mut egui::Ui, _id_source: u64) {
                 ui.add(egui::DragValue::new(self));
             }
-        }
+        })*
     };
 }
 
-impl_num_inspect!(f32);
-impl_num_inspect!(i32);
+impl_num_inspect!(i8, u8, i16, u16, i32, u32, i64, u64, f32, f64);
