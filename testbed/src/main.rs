@@ -63,7 +63,9 @@ impl epi::App for Testbed {
 
     fn update(&mut self, ctx: &egui::CtxRef, frame: &mut epi::Frame<'_>) {
         egui::CentralPanel::default().show(ctx, |ui| {
-            self.entities.inspect(ui, 0);
+            egui::ScrollArea::vertical().show(ui, |ui| {
+                self.entities.inspect(ui, 0);
+            })
         });
 
         // Resize the native window to be just the size we need it to be:
