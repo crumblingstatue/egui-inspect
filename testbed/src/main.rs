@@ -1,7 +1,7 @@
 use eframe::{egui, epi};
 use egui_inspect::Inspect;
 use egui_inspect_derive::Inspect;
-use rand::{distributions::Alphanumeric, thread_rng, Rng};
+use rand::{distributions::Alphanumeric, prelude::SliceRandom, thread_rng, Rng};
 
 struct Testbed {
     entities: Vec<GameEntity>,
@@ -13,6 +13,15 @@ struct GameEntity {
     position: Vector2,
     hp: i32,
     godmode: bool,
+    dir: Dir,
+}
+
+#[derive(Inspect, Clone, Copy, PartialEq)]
+enum Dir {
+    North,
+    East,
+    South,
+    West,
 }
 
 impl GameEntity {
@@ -28,6 +37,9 @@ impl GameEntity {
             position: Vector2::rand(),
             hp: rng.gen_range(0..100),
             godmode: rng.gen(),
+            dir: *[Dir::North, Dir::East, Dir::South, Dir::West]
+                .choose(&mut rng)
+                .unwrap(),
         }
     }
 }
