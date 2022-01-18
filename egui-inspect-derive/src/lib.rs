@@ -39,7 +39,9 @@ pub fn derive_inspect(input: TokenStream) -> TokenStream {
                     FieldInspectKind::Auto => {
                         exprs.push(quote! {
                             ui.horizontal(|ui| {
-                                ui.label(stringify!(#name));
+                                if ui.add(egui::Label::new(stringify!(#name)).sense(egui::Sense::click())).clicked() {
+                                    ui.output().copied_text = format!("{:?}", self.#name);
+                                }
                                 self.#name.inspect(ui, #i as u64)
                             });
                         });
