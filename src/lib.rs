@@ -1,4 +1,4 @@
-use std::fmt::Debug;
+use std::{collections::HashMap, fmt::Debug};
 
 #[cfg(feature = "derive")]
 pub use egui_inspect_derive as derive;
@@ -27,6 +27,26 @@ impl<T: Inspect> Inspect for Vec<T> {
                             ui.output().copied_text = format!("{:?}", item);
                         }
                         item.inspect(ui, i as u64);
+                    });
+                }
+            });
+    }
+}
+
+impl<K: Debug, V: Inspect> Inspect for HashMap<K, V> {
+    fn inspect(&mut self, ui: &mut egui::Ui, id_source: u64) {
+        egui::CollapsingHeader::new("HashMap")
+            .id_source(id_source)
+            .show(ui, |ui| {
+                for (i, (k, v)) in self.iter_mut().enumerate() {
+                    ui.horizontal(|ui| {
+                        if ui
+                            .add(egui::Label::new(format!("{:?}", k)).sense(egui::Sense::click()))
+                            .clicked()
+                        {
+                            ui.output().copied_text = format!("{:?}", v);
+                        }
+                        v.inspect(ui, i as u64);
                     });
                 }
             });
