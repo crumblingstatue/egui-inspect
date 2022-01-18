@@ -39,7 +39,7 @@ macro_rules! impl_num_inspect {
     };
 }
 
-impl_num_inspect!(i8, u8, i16, u16, i32, u32, i64, u64, f32, f64);
+impl_num_inspect!(i8, u8, i16, u16, i32, u32, i64, u64, f32, f64, usize, isize);
 
 impl<T, U> Inspect for (T, U)
 where
