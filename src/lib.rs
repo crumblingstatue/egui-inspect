@@ -40,3 +40,14 @@ macro_rules! impl_num_inspect {
 }
 
 impl_num_inspect!(i8, u8, i16, u16, i32, u32, i64, u64, f32, f64);
+
+impl<T, U> Inspect for (T, U)
+where
+    T: Inspect,
+    U: Inspect,
+{
+    fn inspect(&mut self, ui: &mut egui::Ui, id_source: u64) {
+        self.0.inspect(ui, id_source);
+        self.1.inspect(ui, id_source);
+    }
+}
