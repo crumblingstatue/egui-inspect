@@ -15,7 +15,7 @@ impl Inspect for String {
 
 impl<T: Inspect> Inspect for Vec<T> {
     fn inspect(&mut self, ui: &mut egui::Ui, id_source: u64) {
-        egui::CollapsingHeader::new("Vec")
+        egui::CollapsingHeader::new(format!("Vec [{}]", self.len()))
             .id_source(id_source)
             .show(ui, |ui| {
                 for (i, item) in self.iter_mut().enumerate() {
@@ -35,7 +35,7 @@ impl<T: Inspect> Inspect for Vec<T> {
 
 impl<K: Debug, V: Inspect> Inspect for HashMap<K, V> {
     fn inspect(&mut self, ui: &mut egui::Ui, id_source: u64) {
-        egui::CollapsingHeader::new("HashMap")
+        egui::CollapsingHeader::new(format!("HashMap [{}]", self.len()))
             .id_source(id_source)
             .show(ui, |ui| {
                 for (i, (k, v)) in self.iter_mut().enumerate() {
