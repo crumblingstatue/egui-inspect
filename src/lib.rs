@@ -51,3 +51,17 @@ where
         self.1.inspect(ui, id_source);
     }
 }
+
+#[macro_export]
+macro_rules! inspect {
+    ($ui:expr, $($arg:expr,)*) => {
+        let mut id_source = 0;
+        $(
+            $ui.horizontal(|ui| {
+                ui.label(stringify!($arg));
+                $arg.inspect(ui, id_source);
+            });
+            id_source += 1;
+        )*
+    };
+}
