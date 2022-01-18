@@ -1,3 +1,6 @@
+#[cfg(feature = "derive")]
+pub use egui_inspect_derive as derive;
+
 pub trait Inspect {
     fn inspect(&mut self, ui: &mut egui::Ui, id_source: u64);
 }

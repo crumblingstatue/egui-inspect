@@ -5,8 +5,13 @@ edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
+[features]
+derive = ["egui-inspect-derive"]
+default = ["derive"]
+
 [dependencies]
 egui = { git = "https://github.com/emilk/egui.git" }
+egui-inspect-derive = { path = "egui-inspect-derive", optional = true}
 
 [workspace]
 members = ["egui-inspect-derive", "testbed"]

@@ -2,15 +2,16 @@ use eframe::{
     egui::{self, DragValue},
     epi,
 };
-use egui_inspect::Inspect;
-use egui_inspect_derive::Inspect;
+use egui_inspect::derive::Inspect;
+use egui_inspect::{inspect, Inspect};
 use rand::{distributions::Alphanumeric, prelude::SliceRandom, thread_rng, Rng};
 
 struct Testbed {
     entities: Vec<GameEntity>,
+    some_string: String,
 }
 
-#[derive(Inspect)]
+#[derive(Inspect, Debug)]
 struct GameEntity {
     name: String,
     position: Vector2,
@@ -24,7 +25,7 @@ struct GameEntity {
     custom: MyOpaque,
 }
 
-#[derive(Default)]
+#[derive(Default, Debug)]
 struct MyOpaque {
     data: i32,
 }
@@ -33,7 +34,7 @@ fn custom_inspect(o: &mut MyOpaque, ui: &mut egui::Ui, _id_source: u64) {
     ui.add(DragValue::new(&mut o.data));
 }
 
-#[derive(Inspect, Clone, Copy, PartialEq)]
+#[derive(Inspect, Clone, Copy, PartialEq, Debug)]
 enum Dir {
     North,
     East,
@@ -63,7 +64,7 @@ impl GameEntity {
     }
 }
 
-#[derive(Inspect)]
+#[derive(Inspect, Debug)]
 struct Vector2 {
     x: f32,
     y: f32,
@@ -83,6 +84,7 @@ impl Default for Testbed {
     fn default() -> Self {
         Self {
             entities: (0..100).map(|_| GameEntity::rand()).collect(),
+            some_string: "Hello world!".into(),
         }
     }
 }
@@ -95,7 +97,12 @@ impl epi::App for Testbed {
     fn update(&mut self, ctx: &egui::CtxRef, frame: &mut epi::Frame<'_>) {
         egui::CentralPanel::default().show(ctx, |ui| {
             egui::ScrollArea::vertical().show(ui, |ui| {
-                self.entities.inspect(ui, 0);
+                inspect! {
+                    ui,
+                    self.some_string,
+                    self.some_string.len(),
+                    self.entities,
+                }
             })
         });
 

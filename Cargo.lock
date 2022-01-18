@@ -369,6 +369,7 @@ name = "egui-inspect"
 version = "0.1.0"
 dependencies = [
  "egui",
+ "egui-inspect-derive",
 ]
 
 [[package]]
@@ -1139,7 +1140,6 @@ version = "0.1.0"
 dependencies = [
  "eframe",
  "egui-inspect",
- "egui-inspect-derive",
  "rand",
 ]
 

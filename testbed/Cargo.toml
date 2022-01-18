@@ -8,9 +8,6 @@ edition = "2021"
 [dependencies.egui-inspect]
 path = ".."
 
-[dependencies.egui-inspect-derive]
-path = "../egui-inspect-derive"
-
 [dependencies.eframe]
 git = "https://github.com/emilk/egui.git"
 
