@@ -1,7 +1,9 @@
+use std::fmt::Debug;
+
 #[cfg(feature = "derive")]
 pub use egui_inspect_derive as derive;
 
-pub trait Inspect {
+pub trait Inspect: Debug {
     fn inspect(&mut self, ui: &mut egui::Ui, id_source: u64);
 }
 
@@ -18,7 +20,12 @@ impl<T: Inspect> Inspect for Vec<T> {
             .show(ui, |ui| {
                 for (i, item) in self.iter_mut().enumerate() {
                     ui.horizontal(|ui| {
-                        ui.label(i.to_string());
+                        if ui
+                            .add(egui::Label::new(i.to_string()).sense(egui::Sense::click()))
+                            .clicked()
+                        {
+                            ui.output().copied_text = format!("{:?}", item);
+                        }
                         item.inspect(ui, i as u64);
                     });
                 }
