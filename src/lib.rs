@@ -58,7 +58,9 @@ macro_rules! inspect {
         let mut id_source = 0;
         $(
             $ui.horizontal(|ui| {
-                ui.label(stringify!($arg));
+                if ui.add(egui::Label::new(stringify!($arg)).sense(egui::Sense::click())).clicked() {
+                    ui.output().copied_text = format!("{:?}", $arg);
+                }
                 $arg.inspect(ui, id_source);
             });
             id_source += 1;
