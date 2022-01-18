@@ -33,6 +33,26 @@ impl<T: Inspect> Inspect for Vec<T> {
     }
 }
 
+impl<T: Inspect, const N: usize> Inspect for [T; N] {
+    fn inspect(&mut self, ui: &mut egui::Ui, id_source: u64) {
+        egui::CollapsingHeader::new(format!("array[{}]", self.len()))
+            .id_source(id_source)
+            .show(ui, |ui| {
+                for (i, item) in self.iter_mut().enumerate() {
+                    ui.horizontal(|ui| {
+                        if ui
+                            .add(egui::Label::new(i.to_string()).sense(egui::Sense::click()))
+                            .clicked()
+                        {
+                            ui.output().copied_text = format!("{:?}", item);
+                        }
+                        item.inspect(ui, i as u64);
+                    });
+                }
+            });
+    }
+}
+
 impl<K: Debug, V: Inspect> Inspect for HashMap<K, V> {
     fn inspect(&mut self, ui: &mut egui::Ui, id_source: u64) {
         egui::CollapsingHeader::new(format!("HashMap [{}]", self.len()))
