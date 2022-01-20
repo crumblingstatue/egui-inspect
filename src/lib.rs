@@ -73,6 +73,17 @@ impl<K: Debug, V: Inspect> Inspect for HashMap<K, V> {
     }
 }
 
+impl<'a> Inspect for &'a str {
+    fn inspect(&mut self, ui: &mut egui::Ui, _id_source: u64) {
+        if ui
+            .add(egui::Label::new(*self).sense(egui::Sense::click()))
+            .clicked()
+        {
+            ui.output().copied_text = self.to_owned();
+        }
+    }
+}
+
 impl Inspect for bool {
     fn inspect(&mut self, ui: &mut egui::Ui, _id_source: u64) {
         ui.checkbox(self, "");
