@@ -137,11 +137,38 @@ impl UiExt for egui::Ui {
 }
 
 #[macro_export]
-macro_rules! inspect {
-    ($ui:expr, $($arg:expr,)*) => {
-        let mut id_source = 0;
-        $(
-            $crate::UiExt::property($ui, stringify!($arg), &mut $arg, &mut id_source);
-        )*
-    };
+macro_rules! inspect {(
+    $ui:expr, $($rest:tt)*
+) => ({
+    let mut id_source = 0;
+    $crate::inspect_helper! { $ui id_source $($rest)* }
+})}
+
+#[macro_export]
+macro_rules! inspect_helper {
+    ($ui:tt $id_source:tt) => ();
+
+    (
+        $ui:tt $id_source:tt
+        $name:literal : $arg:expr $(, $($rest:tt)* )?
+    ) => (
+        $crate::UiExt::property(
+            $ui, $name, &mut $arg, &mut $id_source
+        );
+        $($crate::inspect_helper! {
+            $ui $id_source $($rest)*
+        })?
+    );
+
+    (
+        $ui:tt $id_source:tt
+        $arg:expr $(, $($rest:tt)* )?
+    ) => (
+        $crate::UiExt::property(
+            $ui, ::core::stringify!($arg), &mut $arg, &mut $id_source
+        );
+        $($crate::inspect_helper! {
+            $ui $id_source $($rest)*
+        })?
+    );
 }

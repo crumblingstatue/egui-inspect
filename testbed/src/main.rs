@@ -1,6 +1,6 @@
 use eframe::{egui, epi};
 use egui_inspect::derive::Inspect;
-use egui_inspect::{inspect, UiExt};
+use egui_inspect::inspect;
 use rand::{distributions::Alphanumeric, prelude::SliceRandom, thread_rng, Rng};
 
 struct Testbed {
@@ -31,10 +31,12 @@ struct MyOpaque {
 
 fn custom_inspect(o: &mut MyOpaque, ui: &mut egui::Ui, _id_source: u64) {
     ui.collapsing("MyOpaque", |ui| {
-        let mut id_source = 0;
-        ui.property("field 1", &mut o.field1, &mut id_source);
-        ui.property("field 2", &mut o.field2, &mut id_source);
-        ui.property("field 3", &mut o.field3, &mut id_source);
+        inspect! {
+            ui,
+            "field 1": o.field1,
+            "field 2": o.field2,
+            "field 3": o.field3
+        }
     });
 }
 
@@ -105,7 +107,7 @@ impl epi::App for Testbed {
                     ui,
                     self.some_string,
                     self.some_string.len(),
-                    self.entities,
+                    self.entities
                 }
             })
         });
