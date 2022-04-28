@@ -113,18 +113,35 @@ where
     }
 }
 
+pub trait UiExt {
+    fn inspect<T: Inspect>(&mut self, what: &mut T, id_source: &mut u64);
+    fn property<T: Inspect>(&mut self, name: &str, what: &mut T, id_source: &mut u64);
+}
+
+impl UiExt for egui::Ui {
+    fn inspect<T: Inspect>(&mut self, what: &mut T, id_source: &mut u64) {
+        what.inspect(self, *id_source);
+        *id_source += 1;
+    }
+    fn property<T: Inspect>(&mut self, name: &str, what: &mut T, id_source: &mut u64) {
+        self.horizontal(|ui| {
+            if ui
+                .add(egui::Label::new(name).sense(egui::Sense::click()))
+                .clicked()
+            {
+                ui.output().copied_text = format!("{:?}", what);
+            }
+            ui.inspect(what, id_source);
+        });
+    }
+}
+
 #[macro_export]
 macro_rules! inspect {
     ($ui:expr, $($arg:expr,)*) => {
         let mut id_source = 0;
         $(
-            $ui.horizontal(|ui| {
-                if ui.add(egui::Label::new(stringify!($arg)).sense(egui::Sense::click())).clicked() {
-                    ui.output().copied_text = format!("{:?}", $arg);
-                }
-                $arg.inspect(ui, id_source);
-            });
-            id_source += 1;
+            $crate::UiExt::property($ui, stringify!($arg), &mut $arg, &mut id_source);
         )*
     };
 }

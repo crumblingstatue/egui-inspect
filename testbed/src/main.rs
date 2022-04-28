@@ -1,9 +1,6 @@
-use eframe::{
-    egui::{self, DragValue},
-    epi,
-};
+use eframe::{egui, epi};
 use egui_inspect::derive::Inspect;
-use egui_inspect::{inspect, Inspect};
+use egui_inspect::{inspect, UiExt};
 use rand::{distributions::Alphanumeric, prelude::SliceRandom, thread_rng, Rng};
 
 struct Testbed {
@@ -27,11 +24,18 @@ struct GameEntity {
 
 #[derive(Default, Debug)]
 struct MyOpaque {
-    data: i32,
+    field1: i32,
+    field2: String,
+    field3: f32,
 }
 
 fn custom_inspect(o: &mut MyOpaque, ui: &mut egui::Ui, _id_source: u64) {
-    ui.add(DragValue::new(&mut o.data));
+    ui.collapsing("MyOpaque", |ui| {
+        let mut id_source = 0;
+        ui.property("field 1", &mut o.field1, &mut id_source);
+        ui.property("field 2", &mut o.field2, &mut id_source);
+        ui.property("field 3", &mut o.field3, &mut id_source);
+    });
 }
 
 #[derive(Inspect, Clone, Copy, PartialEq, Debug)]
