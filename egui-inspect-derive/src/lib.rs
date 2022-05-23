@@ -42,7 +42,7 @@ pub fn derive_inspect(input: TokenStream) -> TokenStream {
                                 if ui.add(egui::Label::new(stringify!(#name)).sense(egui::Sense::click())).clicked() {
                                     ui.output().copied_text = format!("{:?}", self.#name);
                                 }
-                                self.#name.inspect(ui, #i as u64)
+                                egui_inspect::Inspect::inspect(&mut self.#name, ui, #i as u64)
                             });
                         });
                     }
