@@ -1,4 +1,8 @@
-use std::{collections::HashMap, fmt::Debug};
+use std::{
+    collections::{HashMap, HashSet},
+    ffi::OsString,
+    fmt::Debug,
+};
 
 #[cfg(feature = "derive")]
 pub use egui_inspect_derive as derive;
@@ -30,6 +34,43 @@ impl<T: Inspect> Inspect for Vec<T> {
                     });
                 }
             });
+    }
+}
+
+impl<T: Inspect> Inspect for Option<T> {
+    fn inspect(&mut self, ui: &mut egui::Ui, id_source: u64) {
+        match self {
+            None => {
+                ui.label("None");
+            }
+            Some(t) => {
+                t.inspect(ui, id_source);
+            }
+        }
+    }
+}
+
+impl Inspect for OsString {
+    fn inspect(&mut self, ui: &mut egui::Ui, _id_source: u64) {
+        ui.label(format!("(OsString) {}", self.to_string_lossy()));
+    }
+}
+
+impl<T: Inspect> Inspect for HashSet<T> {
+    fn inspect(&mut self, ui: &mut egui::Ui, id_source: u64) {
+        egui::CollapsingHeader::new("HashSet")
+            .id_source(id_source)
+            .show(ui, |ui| {
+                for item in self.iter() {
+                    ui.label(format!("{:?}", item));
+                }
+            });
+    }
+}
+
+impl<T: Inspect> Inspect for &mut T {
+    fn inspect(&mut self, ui: &mut egui::Ui, id_source: u64) {
+        (*self).inspect(ui, id_source)
     }
 }
 
