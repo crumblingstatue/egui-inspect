@@ -8,21 +8,46 @@ use std::{
 pub use egui_inspect_derive as derive;
 
 pub trait Inspect: Debug {
-    fn inspect(&mut self, ui: &mut egui::Ui, id_source: u64);
+    fn inspect(&self, ui: &mut egui::Ui, id_source: u64);
+    fn inspect_mut(&mut self, ui: &mut egui::Ui, id_source: u64) {
+        self.inspect(ui, id_source);
+    }
 }
 
 impl Inspect for String {
-    fn inspect(&mut self, ui: &mut egui::Ui, _id_source: u64) {
+    fn inspect_mut(&mut self, ui: &mut egui::Ui, _id_source: u64) {
         ui.text_edit_singleline(self);
+    }
+
+    fn inspect(&self, ui: &mut egui::Ui, _id_source: u64) {
+        ui.label(self);
     }
 }
 
 impl<T: Inspect> Inspect for Vec<T> {
-    fn inspect(&mut self, ui: &mut egui::Ui, id_source: u64) {
+    fn inspect_mut(&mut self, ui: &mut egui::Ui, id_source: u64) {
         egui::CollapsingHeader::new(format!("Vec [{}]", self.len()))
             .id_source(id_source)
             .show(ui, |ui| {
                 for (i, item) in self.iter_mut().enumerate() {
+                    ui.horizontal(|ui| {
+                        if ui
+                            .add(egui::Label::new(i.to_string()).sense(egui::Sense::click()))
+                            .clicked()
+                        {
+                            ui.output().copied_text = format!("{:?}", item);
+                        }
+                        item.inspect_mut(ui, i as u64);
+                    });
+                }
+            });
+    }
+
+    fn inspect(&self, ui: &mut egui::Ui, id_source: u64) {
+        egui::CollapsingHeader::new(format!("Vec [{}]", self.len()))
+            .id_source(id_source)
+            .show(ui, |ui| {
+                for (i, item) in self.iter().enumerate() {
                     ui.horizontal(|ui| {
                         if ui
                             .add(egui::Label::new(i.to_string()).sense(egui::Sense::click()))
@@ -38,7 +63,18 @@ impl<T: Inspect> Inspect for Vec<T> {
 }
 
 impl<T: Inspect> Inspect for Option<T> {
-    fn inspect(&mut self, ui: &mut egui::Ui, id_source: u64) {
+    fn inspect_mut(&mut self, ui: &mut egui::Ui, id_source: u64) {
+        match self {
+            None => {
+                ui.label("None");
+            }
+            Some(t) => {
+                t.inspect_mut(ui, id_source);
+            }
+        }
+    }
+
+    fn inspect(&self, ui: &mut egui::Ui, id_source: u64) {
         match self {
             None => {
                 ui.label("None");
@@ -51,35 +87,61 @@ impl<T: Inspect> Inspect for Option<T> {
 }
 
 impl Inspect for OsString {
-    fn inspect(&mut self, ui: &mut egui::Ui, _id_source: u64) {
+    fn inspect_mut(&mut self, ui: &mut egui::Ui, id_source: u64) {
+        self.inspect(ui, id_source);
+    }
+
+    fn inspect(&self, ui: &mut egui::Ui, _id_source: u64) {
         ui.label(format!("(OsString) {}", self.to_string_lossy()));
     }
 }
 
 impl<T: Inspect> Inspect for HashSet<T> {
-    fn inspect(&mut self, ui: &mut egui::Ui, id_source: u64) {
+    fn inspect(&self, ui: &mut egui::Ui, mut id_source: u64) {
         egui::CollapsingHeader::new("HashSet")
             .id_source(id_source)
             .show(ui, |ui| {
                 for item in self.iter() {
-                    ui.label(format!("{:?}", item));
+                    ui.inspect(item, &mut id_source);
                 }
             });
     }
 }
 
 impl<T: Inspect> Inspect for &mut T {
-    fn inspect(&mut self, ui: &mut egui::Ui, id_source: u64) {
-        (*self).inspect(ui, id_source)
+    fn inspect_mut(&mut self, ui: &mut egui::Ui, id_source: u64) {
+        (*self).inspect_mut(ui, id_source)
+    }
+
+    fn inspect(&self, ui: &mut egui::Ui, id_source: u64) {
+        (**self).inspect(ui, id_source)
     }
 }
 
 impl<T: Inspect, const N: usize> Inspect for [T; N] {
-    fn inspect(&mut self, ui: &mut egui::Ui, id_source: u64) {
+    fn inspect_mut(&mut self, ui: &mut egui::Ui, id_source: u64) {
         egui::CollapsingHeader::new(format!("array[{}]", self.len()))
             .id_source(id_source)
             .show(ui, |ui| {
                 for (i, item) in self.iter_mut().enumerate() {
+                    ui.horizontal(|ui| {
+                        if ui
+                            .add(egui::Label::new(i.to_string()).sense(egui::Sense::click()))
+                            .clicked()
+                        {
+                            ui.output().copied_text = format!("{:?}", item);
+                        }
+                        item.inspect_mut(ui, i as u64);
+                    });
+                }
+            });
+    }
+
+    fn inspect(&self, ui: &mut egui::Ui, id_source: u64) {
+        egui::CollapsingHeader::new(format!("array[{}]", self.len()))
+            .id_source(id_source)
+            .show(ui, |ui| {
+                for (i, item) in self.iter().enumerate() {
                     ui.horizontal(|ui| {
                         if ui
                             .add(egui::Label::new(i.to_string()).sense(egui::Sense::click()))
@@ -95,11 +157,29 @@ impl<T: Inspect, const N: usize> Inspect for [T; N] {
 }
 
 impl<K: Debug, V: Inspect> Inspect for HashMap<K, V> {
-    fn inspect(&mut self, ui: &mut egui::Ui, id_source: u64) {
+    fn inspect_mut(&mut self, ui: &mut egui::Ui, id_source: u64) {
         egui::CollapsingHeader::new(format!("HashMap [{}]", self.len()))
             .id_source(id_source)
             .show(ui, |ui| {
                 for (i, (k, v)) in self.iter_mut().enumerate() {
+                    ui.horizontal(|ui| {
+                        if ui
+                            .add(egui::Label::new(format!("{:?}", k)).sense(egui::Sense::click()))
+                            .clicked()
+                        {
+                            ui.output().copied_text = format!("{:?}", v);
+                        }
+                        v.inspect_mut(ui, i as u64);
+                    });
+                }
+            });
+    }
+
+    fn inspect(&self, ui: &mut egui::Ui, id_source: u64) {
+        egui::CollapsingHeader::new(format!("HashMap [{}]", self.len()))
+            .id_source(id_source)
+            .show(ui, |ui| {
+                for (i, (k, v)) in self.iter().enumerate() {
                     ui.horizontal(|ui| {
                         if ui
                             .add(egui::Label::new(format!("{:?}", k)).sense(egui::Sense::click()))
@@ -115,18 +195,22 @@ impl<K: Debug, V: Inspect> Inspect for HashMap<K, V> {
 }
 
 impl<'a> Inspect for &'a str {
-    fn inspect(&mut self, ui: &mut egui::Ui, _id_source: u64) {
+    fn inspect(&self, ui: &mut egui::Ui, _id_source: u64) {
         if ui
             .add(egui::Label::new(*self).sense(egui::Sense::click()))
             .clicked()
         {
-            ui.output().copied_text = self.to_owned();
+            ui.output().copied_text = self.to_string();
         }
     }
 }
 
 impl Inspect for bool {
-    fn inspect(&mut self, ui: &mut egui::Ui, _id_source: u64) {
+    fn inspect(&self, ui: &mut egui::Ui, _id_source: u64) {
+        let mut value = *self;
+        ui.checkbox(&mut value, "");
+    }
+    fn inspect_mut(&mut self, ui: &mut egui::Ui, _id_source: u64) {
         ui.checkbox(self, "");
     }
 }
@@ -134,8 +218,11 @@ impl Inspect for bool {
 macro_rules! impl_num_inspect {
     ($($ty:ty),*) => {
         $(impl Inspect for $ty {
-            fn inspect(&mut self, ui: &mut egui::Ui, _id_source: u64) {
+            fn inspect_mut(&mut self, ui: &mut egui::Ui, _id_source: u64) {
                 ui.add(egui::DragValue::new(self));
+            }
+            fn inspect(&self, ui: &mut egui::Ui, _id_source: u64) {
+                ui.label(self.to_string());
             }
         })*
     };
@@ -148,20 +235,30 @@ where
     T: Inspect,
     U: Inspect,
 {
-    fn inspect(&mut self, ui: &mut egui::Ui, id_source: u64) {
+    fn inspect_mut(&mut self, ui: &mut egui::Ui, id_source: u64) {
+        self.0.inspect_mut(ui, id_source);
+        self.1.inspect_mut(ui, id_source);
+    }
+
+    fn inspect(&self, ui: &mut egui::Ui, id_source: u64) {
         self.0.inspect(ui, id_source);
         self.1.inspect(ui, id_source);
     }
 }
 
 pub trait UiExt {
-    fn inspect<T: Inspect>(&mut self, what: &mut T, id_source: &mut u64);
+    fn inspect<T: Inspect>(&mut self, what: &T, id_source: &mut u64);
+    fn inspect_mut<T: Inspect>(&mut self, what: &mut T, id_source: &mut u64);
     fn property<T: Inspect>(&mut self, name: &str, what: &mut T, id_source: &mut u64);
 }
 
 impl UiExt for egui::Ui {
-    fn inspect<T: Inspect>(&mut self, what: &mut T, id_source: &mut u64) {
+    fn inspect<T: Inspect>(&mut self, what: &T, id_source: &mut u64) {
         what.inspect(self, *id_source);
+        *id_source += 1;
+    }
+    fn inspect_mut<T: Inspect>(&mut self, what: &mut T, id_source: &mut u64) {
+        what.inspect_mut(self, *id_source);
         *id_source += 1;
     }
     fn property<T: Inspect>(&mut self, name: &str, what: &mut T, id_source: &mut u64) {
@@ -172,7 +269,7 @@ impl UiExt for egui::Ui {
             {
                 ui.output().copied_text = format!("{:?}", what);
             }
-            ui.inspect(what, id_source);
+            ui.inspect_mut(what, id_source);
         });
     }
 }

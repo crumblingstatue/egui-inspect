@@ -42,7 +42,7 @@ pub fn derive_inspect(input: TokenStream) -> TokenStream {
                                 if ui.add(egui::Label::new(stringify!(#name)).sense(egui::Sense::click())).clicked() {
                                     ui.output().copied_text = format!("{:?}", self.#name);
                                 }
-                                egui_inspect::Inspect::inspect(&mut self.#name, ui, #i as u64)
+                                egui_inspect::Inspect::inspect_mut(&mut self.#name, ui, #i as u64)
                             });
                         });
                     }
@@ -92,7 +92,10 @@ pub fn derive_inspect(input: TokenStream) -> TokenStream {
     };
     let expanded = quote! {
         impl ::egui_inspect::Inspect for #ty_ident {
-            fn inspect(&mut self, ui: &mut egui::Ui, id_source: u64) {
+            fn inspect(&self, ui: &mut egui::Ui, id_source: u64) {
+
+            }
+            fn inspect_mut(&mut self, ui: &mut egui::Ui, id_source: u64) {
                 #ts
             }
         }
