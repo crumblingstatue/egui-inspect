@@ -1,3 +1,4 @@
+use egui::Ui;
 use std::{
     collections::{HashMap, HashSet},
     ffi::OsString,
@@ -8,42 +9,43 @@ use std::{
 pub use egui_inspect_derive as derive;
 
 pub trait Inspect: Debug {
-    fn inspect(&self, ui: &mut egui::Ui, id_source: u64);
-    fn inspect_mut(&mut self, ui: &mut egui::Ui, id_source: u64) {
+    fn inspect(&self, ui: &mut Ui, id_source: u64);
+    fn inspect_mut(&mut self, ui: &mut Ui, id_source: u64) {
         self.inspect(ui, id_source);
     }
 }
 
 impl Inspect for String {
-    fn inspect_mut(&mut self, ui: &mut egui::Ui, _id_source: u64) {
+    fn inspect_mut(&mut self, ui: &mut Ui, _id_source: u64) {
         ui.text_edit_singleline(self);
     }
 
-    fn inspect(&self, ui: &mut egui::Ui, _id_source: u64) {
+    fn inspect(&self, ui: &mut Ui, _id_source: u64) {
         ui.label(self);
     }
 }
 
 impl<T: Inspect> Inspect for Vec<T> {
-    fn inspect_mut(&mut self, ui: &mut egui::Ui, id_source: u64) {
-        egui::CollapsingHeader::new(format!("Vec [{}]", self.len()))
-            .id_source(id_source)
-            .show(ui, |ui| {
-                for (i, item) in self.iter_mut().enumerate() {
-                    ui.horizontal(|ui| {
-                        if ui
-                            .add(egui::Label::new(i.to_string()).sense(egui::Sense::click()))
-                            .clicked()
-                        {
-                            ui.output().copied_text = format!("{:?}", item);
-                        }
-                        item.inspect_mut(ui, i as u64);
-                    });
-                }
-            });
+    fn inspect_mut(&mut self, ui: &mut Ui, mut id_source: u64) {
+        ui.inspect_iter_with_mut(
+            &format!("Vec [{}]", self.len()),
+            self,
+            &mut id_source,
+            |ui, i, item, _id_source| {
+                ui.horizontal(|ui| {
+                    if ui
+                        .add(egui::Label::new(i.to_string()).sense(egui::Sense::click()))
+                        .clicked()
+                    {
+                        ui.output().copied_text = format!("{:?}", item);
+                    }
+                    item.inspect_mut(ui, i as u64);
+                });
+            },
+        );
     }
 
-    fn inspect(&self, ui: &mut egui::Ui, id_source: u64) {
+    fn inspect(&self, ui: &mut Ui, id_source: u64) {
         egui::CollapsingHeader::new(format!("Vec [{}]", self.len()))
             .id_source(id_source)
             .show(ui, |ui| {
@@ -63,7 +65,7 @@ impl<T: Inspect> Inspect for Vec<T> {
 }
 
 impl<T: Inspect> Inspect for Option<T> {
-    fn inspect_mut(&mut self, ui: &mut egui::Ui, id_source: u64) {
+    fn inspect_mut(&mut self, ui: &mut Ui, id_source: u64) {
         match self {
             None => {
                 ui.label("None");
@@ -74,7 +76,7 @@ impl<T: Inspect> Inspect for Option<T> {
         }
     }
 
-    fn inspect(&self, ui: &mut egui::Ui, id_source: u64) {
+    fn inspect(&self, ui: &mut Ui, id_source: u64) {
         match self {
             None => {
                 ui.label("None");
@@ -87,17 +89,17 @@ impl<T: Inspect> Inspect for Option<T> {
 }
 
 impl Inspect for OsString {
-    fn inspect_mut(&mut self, ui: &mut egui::Ui, id_source: u64) {
+    fn inspect_mut(&mut self, ui: &mut Ui, id_source: u64) {
         self.inspect(ui, id_source);
     }
 
-    fn inspect(&self, ui: &mut egui::Ui, _id_source: u64) {
+    fn inspect(&self, ui: &mut Ui, _id_source: u64) {
         ui.label(format!("(OsString) {}", self.to_string_lossy()));
     }
 }
 
 impl<T: Inspect> Inspect for HashSet<T> {
-    fn inspect(&self, ui: &mut egui::Ui, mut id_source: u64) {
+    fn inspect(&self, ui: &mut Ui, mut id_source: u64) {
         egui::CollapsingHeader::new("HashSet")
             .id_source(id_source)
             .show(ui, |ui| {
@@ -109,17 +111,17 @@ impl<T: Inspect> Inspect for HashSet<T> {
 }
 
 impl<T: Inspect> Inspect for &mut T {
-    fn inspect_mut(&mut self, ui: &mut egui::Ui, id_source: u64) {
+    fn inspect_mut(&mut self, ui: &mut Ui, id_source: u64) {
         (*self).inspect_mut(ui, id_source)
     }
 
-    fn inspect(&self, ui: &mut egui::Ui, id_source: u64) {
+    fn inspect(&self, ui: &mut Ui, id_source: u64) {
         (**self).inspect(ui, id_source)
     }
 }
 
 impl<T: Inspect, const N: usize> Inspect for [T; N] {
-    fn inspect_mut(&mut self, ui: &mut egui::Ui, id_source: u64) {
+    fn inspect_mut(&mut self, ui: &mut Ui, id_source: u64) {
         egui::CollapsingHeader::new(format!("array[{}]", self.len()))
             .id_source(id_source)
             .show(ui, |ui| {
@@ -137,7 +139,7 @@ impl<T: Inspect, const N: usize> Inspect for [T; N] {
             });
     }
 
-    fn inspect(&self, ui: &mut egui::Ui, id_source: u64) {
+    fn inspect(&self, ui: &mut Ui, id_source: u64) {
         egui::CollapsingHeader::new(format!("array[{}]", self.len()))
             .id_source(id_source)
             .show(ui, |ui| {
@@ -157,7 +159,7 @@ impl<T: Inspect, const N: usize> Inspect for [T; N] {
 }
 
 impl<K: Debug, V: Inspect> Inspect for HashMap<K, V> {
-    fn inspect_mut(&mut self, ui: &mut egui::Ui, id_source: u64) {
+    fn inspect_mut(&mut self, ui: &mut Ui, id_source: u64) {
         egui::CollapsingHeader::new(format!("HashMap [{}]", self.len()))
             .id_source(id_source)
             .show(ui, |ui| {
@@ -175,7 +177,7 @@ impl<K: Debug, V: Inspect> Inspect for HashMap<K, V> {
             });
     }
 
-    fn inspect(&self, ui: &mut egui::Ui, id_source: u64) {
+    fn inspect(&self, ui: &mut Ui, id_source: u64) {
         egui::CollapsingHeader::new(format!("HashMap [{}]", self.len()))
             .id_source(id_source)
             .show(ui, |ui| {
@@ -195,7 +197,7 @@ impl<K: Debug, V: Inspect> Inspect for HashMap<K, V> {
 }
 
 impl<'a> Inspect for &'a str {
-    fn inspect(&self, ui: &mut egui::Ui, _id_source: u64) {
+    fn inspect(&self, ui: &mut Ui, _id_source: u64) {
         if ui
             .add(egui::Label::new(*self).sense(egui::Sense::click()))
             .clicked()
@@ -206,11 +208,11 @@ impl<'a> Inspect for &'a str {
 }
 
 impl Inspect for bool {
-    fn inspect(&self, ui: &mut egui::Ui, _id_source: u64) {
+    fn inspect(&self, ui: &mut Ui, _id_source: u64) {
         let mut value = *self;
         ui.checkbox(&mut value, "");
     }
-    fn inspect_mut(&mut self, ui: &mut egui::Ui, _id_source: u64) {
+    fn inspect_mut(&mut self, ui: &mut Ui, _id_source: u64) {
         ui.checkbox(self, "");
     }
 }
@@ -218,10 +220,10 @@ impl Inspect for bool {
 macro_rules! impl_num_inspect {
     ($($ty:ty),*) => {
         $(impl Inspect for $ty {
-            fn inspect_mut(&mut self, ui: &mut egui::Ui, _id_source: u64) {
+            fn inspect_mut(&mut self, ui: &mut Ui, _id_source: u64) {
                 ui.add(egui::DragValue::new(self));
             }
-            fn inspect(&self, ui: &mut egui::Ui, _id_source: u64) {
+            fn inspect(&self, ui: &mut Ui, _id_source: u64) {
                 ui.label(self.to_string());
             }
         })*
@@ -235,12 +237,12 @@ where
     T: Inspect,
     U: Inspect,
 {
-    fn inspect_mut(&mut self, ui: &mut egui::Ui, id_source: u64) {
+    fn inspect_mut(&mut self, ui: &mut Ui, id_source: u64) {
         self.0.inspect_mut(ui, id_source);
         self.1.inspect_mut(ui, id_source);
     }
 
-    fn inspect(&self, ui: &mut egui::Ui, id_source: u64) {
+    fn inspect(&self, ui: &mut Ui, id_source: u64) {
         self.0.inspect(ui, id_source);
         self.1.inspect(ui, id_source);
     }
@@ -248,14 +250,72 @@ where
 
 pub trait UiExt {
     fn inspect<T: Inspect>(&mut self, what: &T, id_source: &mut u64);
+    fn inspect_iter_with<'a, I, T, F>(
+        &mut self,
+        title: &str,
+        into_iter: I,
+        id_source: &mut u64,
+        fun: F,
+    ) where
+        I: IntoIterator<Item = &'a T>,
+        T: 'a,
+        F: FnMut(&mut Ui, usize, &T, &mut u64);
+    fn inspect_iter_with_mut<'a, I, T, F>(
+        &mut self,
+        title: &str,
+        into_iter: I,
+        id_source: &mut u64,
+        fun: F,
+    ) where
+        I: IntoIterator<Item = &'a mut T>,
+        T: 'a,
+        F: FnMut(&mut Ui, usize, &mut T, &mut u64);
     fn inspect_mut<T: Inspect>(&mut self, what: &mut T, id_source: &mut u64);
     fn property<T: Inspect>(&mut self, name: &str, what: &mut T, id_source: &mut u64);
 }
 
-impl UiExt for egui::Ui {
+macro_rules! inspect_iter_with_body {
+    ($self:expr, $title:expr, $into_iter:expr, $id_source:expr, $fun:expr) => {
+        egui::CollapsingHeader::new($title)
+            .id_source(*$id_source)
+            .show($self, |ui| {
+                for (i, item) in $into_iter.into_iter().enumerate() {
+                    $fun(ui, i, item, $id_source);
+                }
+            });
+    };
+}
+
+impl UiExt for Ui {
     fn inspect<T: Inspect>(&mut self, what: &T, id_source: &mut u64) {
         what.inspect(self, *id_source);
         *id_source += 1;
+    }
+    fn inspect_iter_with<'a, I, T, F>(
+        &mut self,
+        title: &str,
+        into_iter: I,
+        id_source: &mut u64,
+        mut fun: F,
+    ) where
+        I: IntoIterator<Item = &'a T>,
+        T: 'a,
+        F: FnMut(&mut Ui, usize, &T, &mut u64),
+    {
+        inspect_iter_with_body!(self, title, into_iter, id_source, fun);
+    }
+    fn inspect_iter_with_mut<'a, I, T, F>(
+        &mut self,
+        title: &str,
+        into_iter: I,
+        id_source: &mut u64,
+        mut fun: F,
+    ) where
+        I: IntoIterator<Item = &'a mut T>,
+        T: 'a,
+        F: FnMut(&mut Ui, usize, &mut T, &mut u64),
+    {
+        inspect_iter_with_body!(self, title, into_iter, id_source, fun);
     }
     fn inspect_mut<T: Inspect>(&mut self, what: &mut T, id_source: &mut u64) {
         what.inspect_mut(self, *id_source);
