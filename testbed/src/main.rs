@@ -40,7 +40,7 @@ fn custom_inspect(o: &mut MyOpaque, ui: &mut egui::Ui, _id_source: u64) {
     });
 }
 
-#[derive(Inspect, Clone, Copy, PartialEq, Debug)]
+#[derive(Inspect, Clone, Copy, PartialEq, Eq, Debug)]
 enum Dir {
     North,
     East,
