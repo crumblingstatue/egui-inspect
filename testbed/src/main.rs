@@ -1,4 +1,4 @@
-use eframe::{egui, epi};
+use eframe::{egui, App, Frame, NativeOptions};
 use egui_inspect::derive::Inspect;
 use egui_inspect::inspect;
 use rand::{distributions::Alphanumeric, prelude::SliceRandom, thread_rng, Rng};
@@ -95,12 +95,8 @@ impl Default for Testbed {
     }
 }
 
-impl epi::App for Testbed {
-    fn name(&self) -> &str {
-        "egui-inspect testbed"
-    }
-
-    fn update(&mut self, ctx: &egui::CtxRef, frame: &mut epi::Frame<'_>) {
+impl App for Testbed {
+    fn update(&mut self, ctx: &egui::Context, frame: &mut Frame) {
         egui::CentralPanel::default().show(ctx, |ui| {
             egui::ScrollArea::vertical().show(ui, |ui| {
                 inspect! {
@@ -118,6 +114,9 @@ impl epi::App for Testbed {
 }
 
 fn main() {
-    let options = eframe::NativeOptions::default();
-    eframe::run_native(Box::new(Testbed::default()), options);
+    eframe::run_native(
+        "egui-inspect testbed",
+        NativeOptions::default(),
+        Box::new(|_cc| Box::new(Testbed::default())),
+    );
 }
