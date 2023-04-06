@@ -37,7 +37,7 @@ impl<T: Inspect> Inspect for Vec<T> {
                         .add(egui::Label::new(i.to_string()).sense(egui::Sense::click()))
                         .clicked()
                     {
-                        ui.output().copied_text = format!("{:?}", item);
+                        ui.output_mut(|o| o.copied_text = format!("{:?}", item));
                     }
                     item.inspect_mut(ui, i as u64);
                 });
@@ -55,7 +55,7 @@ impl<T: Inspect> Inspect for Vec<T> {
                             .add(egui::Label::new(i.to_string()).sense(egui::Sense::click()))
                             .clicked()
                         {
-                            ui.output().copied_text = format!("{:?}", item);
+                            ui.output_mut(|o| o.copied_text = format!("{:?}", item));
                         }
                         item.inspect(ui, i as u64);
                     });
@@ -131,7 +131,7 @@ impl<T: Inspect, const N: usize> Inspect for [T; N] {
                             .add(egui::Label::new(i.to_string()).sense(egui::Sense::click()))
                             .clicked()
                         {
-                            ui.output().copied_text = format!("{:?}", item);
+                            ui.output_mut(|o| o.copied_text = format!("{:?}", item));
                         }
                         item.inspect_mut(ui, i as u64);
                     });
@@ -149,7 +149,7 @@ impl<T: Inspect, const N: usize> Inspect for [T; N] {
                             .add(egui::Label::new(i.to_string()).sense(egui::Sense::click()))
                             .clicked()
                         {
-                            ui.output().copied_text = format!("{:?}", item);
+                            ui.output_mut(|o| o.copied_text = format!("{:?}", item));
                         }
                         item.inspect(ui, i as u64);
                     });
@@ -169,7 +169,7 @@ impl<K: Debug, V: Inspect> Inspect for HashMap<K, V> {
                             .add(egui::Label::new(format!("{:?}", k)).sense(egui::Sense::click()))
                             .clicked()
                         {
-                            ui.output().copied_text = format!("{:?}", v);
+                            ui.output_mut(|o| o.copied_text = format!("{:?}", v));
                         }
                         v.inspect_mut(ui, i as u64);
                     });
@@ -187,7 +187,7 @@ impl<K: Debug, V: Inspect> Inspect for HashMap<K, V> {
                             .add(egui::Label::new(format!("{:?}", k)).sense(egui::Sense::click()))
                             .clicked()
                         {
-                            ui.output().copied_text = format!("{:?}", v);
+                            ui.output_mut(|o| o.copied_text = format!("{:?}", v));
                         }
                         v.inspect(ui, i as u64);
                     });
@@ -202,7 +202,7 @@ impl<'a> Inspect for &'a str {
             .add(egui::Label::new(*self).sense(egui::Sense::click()))
             .clicked()
         {
-            ui.output().copied_text = self.to_string();
+            ui.output_mut(|o| o.copied_text = self.to_string())
         }
     }
 }
@@ -327,7 +327,7 @@ impl UiExt for Ui {
                 .add(egui::Label::new(name).sense(egui::Sense::click()))
                 .clicked()
             {
-                ui.output().copied_text = format!("{:?}", what);
+                ui.output_mut(|o| o.copied_text = format!("{:?}", what));
             }
             ui.inspect_mut(what, id_source);
         });

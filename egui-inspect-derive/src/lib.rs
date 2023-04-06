@@ -40,7 +40,7 @@ pub fn derive_inspect(input: TokenStream) -> TokenStream {
                         exprs.push(quote! {
                             ui.horizontal(|ui| {
                                 if ui.add(egui::Label::new(stringify!(#name)).sense(egui::Sense::click())).clicked() {
-                                    ui.output().copied_text = format!("{:?}", self.#name);
+                                    ui.output_mut(|o| o.copied_text = format!("{:?}", self.#name));
                                 }
                                 egui_inspect::Inspect::inspect_mut(&mut self.#name, ui, #i as u64)
                             });
