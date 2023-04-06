@@ -39,10 +39,10 @@ pub fn derive_inspect(input: TokenStream) -> TokenStream {
                     FieldInspectKind::Auto => {
                         exprs.push(quote! {
                             ui.horizontal(|ui| {
-                                if ui.add(egui::Label::new(stringify!(#name)).sense(egui::Sense::click())).clicked() {
+                                if ui.add(::egui::Label::new(stringify!(#name)).sense(::egui::Sense::click())).clicked() {
                                     ui.output_mut(|o| o.copied_text = format!("{:?}", self.#name));
                                 }
-                                egui_inspect::Inspect::inspect_mut(&mut self.#name, ui, #i as u64)
+                                ::egui_inspect::Inspect::inspect_mut(&mut self.#name, ui, #i as u64)
                             });
                         });
                     }
@@ -65,7 +65,7 @@ pub fn derive_inspect(input: TokenStream) -> TokenStream {
                 }
             }
             quote! {
-                egui::CollapsingHeader::new(stringify!(#ty_ident)).id_source(id_source).show(ui, |ui| {
+                ::egui::CollapsingHeader::new(stringify!(#ty_ident)).id_source(id_source).show(ui, |ui| {
                     #(#exprs)*
                 });
             }
@@ -83,7 +83,7 @@ pub fn derive_inspect(input: TokenStream) -> TokenStream {
                 let sel_text = match self {
                     #(#sel_name_match_exprs,)*
                 };
-                egui::ComboBox::from_label(stringify!(#ty_ident)).selected_text(sel_text).show_ui(ui, |ui| {
+                ::egui::ComboBox::from_label(stringify!(#ty_ident)).selected_text(sel_text).show_ui(ui, |ui| {
                     #(#selectable_value_exprs;)*
                 });
             }
@@ -92,10 +92,10 @@ pub fn derive_inspect(input: TokenStream) -> TokenStream {
     };
     let expanded = quote! {
         impl ::egui_inspect::Inspect for #ty_ident {
-            fn inspect(&self, ui: &mut egui::Ui, id_source: u64) {
+            fn inspect(&self, ui: &mut ::egui::Ui, id_source: u64) {
 
             }
-            fn inspect_mut(&mut self, ui: &mut egui::Ui, id_source: u64) {
+            fn inspect_mut(&mut self, ui: &mut ::egui::Ui, id_source: u64) {
                 #ts
             }
         }
