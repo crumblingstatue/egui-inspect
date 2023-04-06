@@ -158,7 +158,7 @@ impl<T: Inspect, const N: usize> Inspect for [T; N] {
     }
 }
 
-impl<K: Debug, V: Inspect> Inspect for HashMap<K, V> {
+impl<K: Debug, V: Inspect, S> Inspect for HashMap<K, V, S> {
     fn inspect_mut(&mut self, ui: &mut Ui, id_source: u64) {
         egui::CollapsingHeader::new(format!("HashMap [{}]", self.len()))
             .id_source(id_source)
