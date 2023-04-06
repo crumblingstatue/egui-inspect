@@ -83,7 +83,7 @@ pub fn derive_inspect(input: TokenStream) -> TokenStream {
                 let sel_text = match self {
                     #(#sel_name_match_exprs,)*
                 };
-                ::egui::ComboBox::from_label(stringify!(#ty_ident)).selected_text(sel_text).show_ui(ui, |ui| {
+                ::egui::ComboBox::new(id_source, stringify!(#ty_ident)).selected_text(sel_text).show_ui(ui, |ui| {
                     #(#selectable_value_exprs;)*
                 });
             }
