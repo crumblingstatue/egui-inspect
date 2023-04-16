@@ -1,6 +1,6 @@
 use proc_macro::TokenStream;
 use quote::quote;
-use syn::{parse_macro_input, Attribute, Data, DeriveInput};
+use syn::{parse_macro_input, Attribute, Data, DeriveInput, Member};
 
 enum FieldInspectKind {
     /// Auto-inspected (it is assumed that the field implements Inspect)
@@ -18,7 +18,7 @@ fn inspect_kind(attrs: &[Attribute]) -> FieldInspectKind {
         if attr.path().is_ident("opaque") {
             return FieldInspectKind::Opaque;
         } else if attr.path().is_ident("inspect_with") {
-            let fun: syn::Ident = attr.parse_args().unwrap();
+            let fun: syn::Ident = attr.parse_args().expect("Failed to parse ident");
             return FieldInspectKind::WithFn(fun);
         }
     }
@@ -33,30 +33,33 @@ pub fn derive_inspect(input: TokenStream) -> TokenStream {
         Data::Struct(s) => {
             let mut exprs = Vec::new();
             for (i, f) in s.fields.iter().enumerate() {
-                let name = f.ident.as_ref().unwrap();
+                let memb = match &f.ident {
+                    Some(ident) => Member::from(ident.clone()),
+                    None => Member::from(i),
+                };
                 match inspect_kind(&f.attrs) {
                     FieldInspectKind::Auto => {
                         exprs.push(quote! {
                             ui.horizontal(|ui| {
-                                if ui.add(::egui::Label::new(stringify!(#name)).sense(::egui::Sense::click())).clicked() {
-                                    ui.output_mut(|o| o.copied_text = format!("{:?}", self.#name));
+                                if ui.add(::egui::Label::new(stringify!(#f)).sense(::egui::Sense::click())).clicked() {
+                                    ui.output_mut(|o| o.copied_text = format!("{:?}", self.#memb));
                                 }
-                                ::egui_inspect::Inspect::inspect_mut(&mut self.#name, ui, #i as u64)
+                                ::egui_inspect::Inspect::inspect_mut(&mut self.#memb, ui, #i as u64)
                             });
                         });
                     }
                     FieldInspectKind::Opaque => {
                         exprs.push(quote! {
                             ui.horizontal(|ui| {
-                                ui.label(concat!(stringify!(#name), " <opaque>"));
+                                ui.label(concat!(stringify!(#memb), " <opaque>"));
                             });
                         });
                     }
                     FieldInspectKind::WithFn(fun) => {
                         exprs.push(quote! {
                             ui.horizontal(|ui| {
-                                ui.label(stringify!(#name));
-                                #fun(&mut self.#name, ui, #i as u64)
+                                ui.label(stringify!(#memb));
+                                #fun(&mut self.#memb, ui, #i as u64)
                             });
                         });
                     }

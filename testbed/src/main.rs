@@ -20,7 +20,11 @@ struct GameEntity {
     something_opaque: MyOpaque,
     #[inspect_with(custom_inspect)]
     custom: MyOpaque,
+    tuple: TupleStruct,
 }
+
+#[derive(Inspect, Debug)]
+struct TupleStruct(u32);
 
 #[derive(Default, Debug)]
 struct MyOpaque {
@@ -66,6 +70,7 @@ impl GameEntity {
                 .unwrap(),
             something_opaque: MyOpaque::default(),
             custom: MyOpaque::default(),
+            tuple: TupleStruct(42),
         }
     }
 }
