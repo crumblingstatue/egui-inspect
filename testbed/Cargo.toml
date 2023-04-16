@@ -9,6 +9,6 @@ edition = "2021"
 path = ".."
 
 [dependencies]
-rand = "0.8.4"
-eframe = "0.21.0"
+rand = "0.8.5"
+eframe = "0.21.3"
 egui = "0.21.0"

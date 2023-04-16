@@ -7,7 +7,7 @@ enum FieldInspectKind {
     Auto,
     /// A function named by the token stream is called to inspect the field.
     /// The function takes (thing: &mut T, ui: &mut Ui, id_source: u64)
-    WithFn(TokenStream),
+    WithFn(syn::Ident),
     /// Not visited, left alone.
     /// Useful when you want to skip a field that doesn't implement Inspect.
     Opaque,
@@ -15,12 +15,11 @@ enum FieldInspectKind {
 
 fn inspect_kind(attrs: &[Attribute]) -> FieldInspectKind {
     for attr in attrs {
-        for seg in &attr.path.segments {
-            if seg.ident == "opaque" {
-                return FieldInspectKind::Opaque;
-            } else if seg.ident == "inspect_with" {
-                return FieldInspectKind::WithFn(attr.tokens.clone().into());
-            }
+        if attr.path().is_ident("opaque") {
+            return FieldInspectKind::Opaque;
+        } else if attr.path().is_ident("inspect_with") {
+            let fun: syn::Ident = attr.parse_args().unwrap();
+            return FieldInspectKind::WithFn(fun);
         }
     }
     FieldInspectKind::Auto
@@ -53,12 +52,11 @@ pub fn derive_inspect(input: TokenStream) -> TokenStream {
                             });
                         });
                     }
-                    FieldInspectKind::WithFn(ts) => {
-                        let ts: proc_macro2::TokenStream = ts.into();
+                    FieldInspectKind::WithFn(fun) => {
                         exprs.push(quote! {
                             ui.horizontal(|ui| {
                                 ui.label(stringify!(#name));
-                                #ts(&mut self.#name, ui, #i as u64)
+                                #fun(&mut self.#name, ui, #i as u64)
                             });
                         });
                     }
