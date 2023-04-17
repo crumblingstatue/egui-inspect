@@ -1,4 +1,5 @@
 use std::fmt::Debug;
+use std::marker::PhantomData;
 
 use eframe::{egui, App, Frame, NativeOptions};
 use egui_inspect::inspect;
@@ -24,7 +25,10 @@ struct GameEntity {
     custom: MyOpaque,
     tuple: TupleStruct,
     generic: Generic<String>,
+    phantom: PhantomData<NonInspect>,
 }
+
+struct NonInspect;
 
 #[derive(Inspect, Debug)]
 struct TupleStruct(u32);
@@ -82,6 +86,7 @@ impl GameEntity {
             generic: Generic {
                 field: String::new(),
             },
+            phantom: PhantomData,
         }
     }
 }

@@ -3,6 +3,7 @@ use std::{
     collections::{HashMap, HashSet},
     ffi::OsString,
     fmt::Debug,
+    marker::PhantomData,
 };
 
 #[cfg(feature = "derive")]
@@ -331,6 +332,12 @@ impl UiExt for Ui {
             }
             ui.inspect_mut(what, id_source);
         });
+    }
+}
+
+impl<T> Inspect for PhantomData<T> {
+    fn inspect(&self, ui: &mut Ui, _id_source: u64) {
+        ui.label("PhantomData");
     }
 }
 
