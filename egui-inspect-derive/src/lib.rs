@@ -91,8 +91,9 @@ pub fn derive_inspect(input: TokenStream) -> TokenStream {
         }
         Data::Union(_) => panic!("Unions are not supported"),
     };
+    let (intro_generics, forward_generics, where_clauses) = input.generics.split_for_impl();
     let expanded = quote! {
-        impl ::egui_inspect::Inspect for #ty_ident {
+        impl #intro_generics ::egui_inspect::Inspect for #ty_ident #forward_generics #where_clauses {
             fn inspect(&self, ui: &mut ::egui::Ui, id_source: u64) {
 
             }

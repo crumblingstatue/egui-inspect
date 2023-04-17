@@ -1,6 +1,8 @@
+use std::fmt::Debug;
+
 use eframe::{egui, App, Frame, NativeOptions};
-use egui_inspect::derive::Inspect;
 use egui_inspect::inspect;
+use egui_inspect::{derive::Inspect, Inspect};
 use rand::{distributions::Alphanumeric, prelude::SliceRandom, thread_rng, Rng};
 
 struct Testbed {
@@ -21,6 +23,7 @@ struct GameEntity {
     #[inspect_with(custom_inspect)]
     custom: MyOpaque,
     tuple: TupleStruct,
+    generic: Generic<String>,
 }
 
 #[derive(Inspect, Debug)]
@@ -31,6 +34,11 @@ struct MyOpaque {
     field1: i32,
     field2: String,
     field3: f32,
+}
+
+#[derive(Inspect, Debug)]
+struct Generic<T: Inspect> {
+    field: T,
 }
 
 fn custom_inspect(o: &mut MyOpaque, ui: &mut egui::Ui, _id_source: u64) {
@@ -71,6 +79,9 @@ impl GameEntity {
             something_opaque: MyOpaque::default(),
             custom: MyOpaque::default(),
             tuple: TupleStruct(42),
+            generic: Generic {
+                field: String::new(),
+            },
         }
     }
 }
