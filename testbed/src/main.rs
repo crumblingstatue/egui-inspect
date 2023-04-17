@@ -26,6 +26,7 @@ struct GameEntity {
     tuple: TupleStruct,
     generic: Generic<String>,
     phantom: PhantomData<NonInspect>,
+    unit: (),
 }
 
 struct NonInspect;
@@ -87,6 +88,7 @@ impl GameEntity {
                 field: String::new(),
             },
             phantom: PhantomData,
+            unit: (),
         }
     }
 }

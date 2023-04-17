@@ -341,6 +341,12 @@ impl<T> Inspect for PhantomData<T> {
     }
 }
 
+impl Inspect for () {
+    fn inspect(&self, ui: &mut Ui, _id_source: u64) {
+        ui.label("()");
+    }
+}
+
 #[macro_export]
 macro_rules! inspect {(
     $ui:expr, $($rest:tt)*
