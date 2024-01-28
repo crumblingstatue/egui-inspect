@@ -119,7 +119,7 @@ impl Default for Testbed {
 }
 
 impl App for Testbed {
-    fn update(&mut self, ctx: &egui::Context, frame: &mut Frame) {
+    fn update(&mut self, ctx: &egui::Context, _frame: &mut Frame) {
         egui::CentralPanel::default().show(ctx, |ui| {
             egui::ScrollArea::vertical().show(ui, |ui| {
                 inspect! {
@@ -132,7 +132,7 @@ impl App for Testbed {
         });
 
         // Resize the native window to be just the size we need it to be:
-        frame.set_window_size(ctx.used_size());
+        ctx.send_viewport_cmd(egui::ViewportCommand::InnerSize(ctx.used_size()));
     }
 }
 

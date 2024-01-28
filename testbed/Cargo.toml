@@ -10,5 +10,5 @@ path = ".."
 
 [dependencies]
 rand = "0.8.5"
-eframe = "0.21.3"
-egui = "0.21.0"
+eframe = "0.25.0"
+egui = "0.25.0"
