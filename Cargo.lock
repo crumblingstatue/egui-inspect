@@ -811,7 +811,7 @@ version = "0.5.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "330c60081dcc4c72131f8eb70510f1ac07223e5d4163db481a04a0befcffa412"
 dependencies = [
- "libloading 0.7.4",
+ "libloading",
 ]
 
 [[package]]
@@ -830,6 +830,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "ecolor"
+version = "0.26.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "169a0e42e2b3d0f663e100f5c10710ffdb9748f7e7565305ecc09044d59e0fbd"
+
+[[package]]
 name = "eframe"
 version = "0.25.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -837,7 +843,7 @@ checksum = "79c00143a1d564cf27570234c9a199cbe75dc3d43a135510fb2b93406a87ee8e"
 dependencies = [
  "bytemuck",
  "cocoa",
- "egui",
+ "egui 0.25.0",
  "egui-winit",
  "egui_glow",
  "glow",
@@ -867,8 +873,19 @@ checksum = "e0bf640ed7f3bf3d14ebf00d73bacc09c886443ee84ca6494bde37953012c9e3"
 dependencies = [
  "accesskit",
  "ahash",
- "epaint",
+ "epaint 0.25.0",
  "log",
+ "nohash-hasher",
+]
+
+[[package]]
+name = "egui"
+version = "0.26.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5493685c2ca33e06b5ad45ae304b13bc084c395f422268bff1377633552f69ac"
+dependencies = [
+ "ahash",
+ "epaint 0.26.0",
  "nohash-hasher",
 ]
 
@@ -876,7 +893,7 @@ dependencies = [
 name = "egui-inspect"
 version = "0.1.0"
 dependencies = [
- "egui",
+ "egui 0.26.0",
  "egui-inspect-derive",
 ]
 
@@ -897,7 +914,7 @@ checksum = "1d95d9762056c541bd2724de02910d8bccf3af8e37689dc114b21730e64f80a0"
 dependencies = [
  "accesskit_winit",
  "arboard",
- "egui",
+ "egui 0.25.0",
  "log",
  "raw-window-handle 0.5.2",
  "smithay-clipboard",
@@ -913,7 +930,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "cb2ef815e80d117339c7d6b813f7678d23522d699ccd3243e267ef06166009b9"
 dependencies = [
  "bytemuck",
- "egui",
+ "egui 0.25.0",
  "glow",
  "log",
  "memoffset 0.7.1",
@@ -929,6 +946,12 @@ checksum = "3ee58355767587db7ba3738930d93cad3052cd834c2b48b9ef6ef26fe4823b7e"
 dependencies = [
  "bytemuck",
 ]
+
+[[package]]
+name = "emath"
+version = "0.26.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6ba2475f57a416ce2a05e557f3d18e465c7aef23f3f6da2252b428eaaaaa6a65"
 
 [[package]]
 name = "enumflags2"
@@ -960,9 +983,23 @@ dependencies = [
  "ab_glyph",
  "ahash",
  "bytemuck",
- "ecolor",
- "emath",
+ "ecolor 0.25.0",
+ "emath 0.25.0",
  "log",
+ "nohash-hasher",
+ "parking_lot",
+]
+
+[[package]]
+name = "epaint"
+version = "0.26.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b823734a8b7e81302a5f1a8ba041ab4ed7805a43d8dfec4dac0c72b933699bbc"
+dependencies = [
+ "ab_glyph",
+ "ahash",
+ "ecolor 0.26.0",
+ "emath 0.26.0",
  "nohash-hasher",
  "parking_lot",
 ]
@@ -1248,7 +1285,7 @@ dependencies = [
  "glutin_glx_sys",
  "glutin_wgl_sys",
  "icrate",
- "libloading 0.8.1",
+ "libloading",
  "objc2 0.4.1",
  "once_cell",
  "raw-window-handle 0.5.2",
@@ -1431,16 +1468,6 @@ name = "libc"
 version = "0.2.152"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "13e3bf6590cbc649f4d1a3eefc9d5d6eb746f5200ffb04e5e142700b8faa56e7"
-
-[[package]]
-name = "libloading"
-version = "0.7.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b67380fd3b2fbe7527a606e18729d21c6f3951633d0500574c4dc22d2d638b9f"
-dependencies = [
- "cfg-if",
- "winapi",
-]
 
 [[package]]
 name = "libloading"
@@ -2254,7 +2281,7 @@ name = "testbed"
 version = "0.1.0"
 dependencies = [
  "eframe",
- "egui",
+ "egui 0.25.0",
  "egui-inspect",
  "rand",
 ]
@@ -3030,7 +3057,7 @@ dependencies = [
  "as-raw-xcb-connection",
  "gethostname 0.4.3",
  "libc",
- "libloading 0.8.1",
+ "libloading",
  "once_cell",
  "rustix 0.38.30",
  "x11rb-protocol 0.13.0",
