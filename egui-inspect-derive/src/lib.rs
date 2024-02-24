@@ -39,9 +39,10 @@ pub fn derive_inspect(input: TokenStream) -> TokenStream {
                 };
                 match inspect_kind(&f.attrs) {
                     FieldInspectKind::Auto => {
+                        let ident = &f.ident;
                         exprs.push(quote! {
                             ui.horizontal(|ui| {
-                                if ui.add(::egui::Label::new(stringify!(#f)).sense(::egui::Sense::click())).clicked() {
+                                if ui.add(::egui::Label::new(stringify!(#ident)).sense(::egui::Sense::click())).clicked() {
                                     ui.output_mut(|o| o.copied_text = format!("{:?}", self.#memb));
                                 }
                                 ::egui_inspect::Inspect::inspect_mut(&mut self.#memb, ui, #i as u64)
