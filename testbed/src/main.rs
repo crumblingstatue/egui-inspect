@@ -9,6 +9,7 @@ use rand::{distributions::Alphanumeric, prelude::SliceRandom, thread_rng, Rng};
 struct Testbed {
     entities: Vec<GameEntity>,
     some_string: String,
+    list_of_strings: Vec<String>,
 }
 
 #[derive(Inspect, Debug)]
@@ -114,6 +115,7 @@ impl Default for Testbed {
         Self {
             entities: (0..100).map(|_| GameEntity::rand()).collect(),
             some_string: "Hello world!".into(),
+            list_of_strings: Vec::new(),
         }
     }
 }
@@ -126,7 +128,8 @@ impl App for Testbed {
                     ui,
                     self.some_string,
                     self.some_string.len(),
-                    self.entities
+                    self.entities,
+                    self.list_of_strings
                 }
             })
         });

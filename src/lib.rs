@@ -1,3 +1,5 @@
+#![feature(specialization)]
+
 /// Re-export of egui. Derive codegen refers to this.
 pub use egui;
 use egui::Ui;
@@ -28,8 +30,25 @@ impl Inspect for String {
     }
 }
 
+trait InspectAddUi: Sized {
+    fn inspect_add_ui(ui: &mut Ui, vec: &mut Vec<Self>);
+}
+
+impl<T> InspectAddUi for T {
+    default fn inspect_add_ui(_ui: &mut Ui, _vec: &mut Vec<T>) {}
+}
+
+impl<T: Default> InspectAddUi for T {
+    fn inspect_add_ui(ui: &mut Ui, vec: &mut Vec<T>) {
+        if ui.button("+").clicked() {
+            vec.push(T::default())
+        }
+    }
+}
+
 impl<T: Inspect> Inspect for Vec<T> {
     fn inspect_mut(&mut self, ui: &mut Ui, mut id_source: u64) {
+        T::inspect_add_ui(ui, self);
         ui.inspect_iter_with_mut(
             &format!("Vec [{}]", self.len()),
             self,
