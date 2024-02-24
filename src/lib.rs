@@ -1,3 +1,5 @@
+/// Re-export of egui. Derive codegen refers to this.
+pub use egui;
 use egui::Ui;
 use std::{
     collections::{HashMap, HashSet},
