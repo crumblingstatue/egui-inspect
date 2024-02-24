@@ -1,7 +1,7 @@
 use std::fmt::Debug;
 use std::marker::PhantomData;
 
-use eframe::{egui, App, Frame, NativeOptions};
+use eframe::{App, Frame, NativeOptions};
 use egui_inspect::inspect;
 use egui_inspect::{derive::Inspect, Inspect};
 use rand::{distributions::Alphanumeric, prelude::SliceRandom, thread_rng, Rng};
