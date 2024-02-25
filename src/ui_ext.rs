@@ -12,8 +12,16 @@ macro_rules! inspect_iter_with_body {
     };
 }
 
+/// Extension trait for `egui::Ui`. Provides helper methods for inspecting values.
 pub trait UiExt {
+    /// Inspect a single value immutably.
+    /// `id_source` is used to generate unique ids for egui.
     fn inspect<T: Inspect>(&mut self, what: &T, id_source: &mut u64);
+    /// Inspect a single value mutably.
+    /// `id_source` is used to generate unique ids for egui.
+    fn inspect_mut<T: Inspect>(&mut self, what: &mut T, id_source: &mut u64);
+    /// Inspect an iterator immutably.
+    /// `id_source` is used to generate unique ids for egui.
     fn inspect_iter_with<'a, I, T, F>(
         &mut self,
         title: &str,
@@ -24,6 +32,8 @@ pub trait UiExt {
         I: IntoIterator<Item = &'a T>,
         T: 'a,
         F: FnMut(&mut Ui, usize, &T, &mut u64);
+    /// Inspect an iterator mutably.
+    /// `id_source` is used to generate unique ids for egui.
     fn inspect_iter_with_mut<'a, I, T, F>(
         &mut self,
         title: &str,
@@ -34,8 +44,9 @@ pub trait UiExt {
         I: IntoIterator<Item = &'a mut T>,
         T: 'a,
         F: FnMut(&mut Ui, usize, &mut T, &mut u64);
-    fn inspect_mut<T: Inspect>(&mut self, what: &mut T, id_source: &mut u64);
-    fn property<T: Inspect>(&mut self, name: &str, what: &mut T, id_source: &mut u64);
+    /// Inspect a struct field mutably.
+    /// `id_source` is used to generate unique ids for egui.
+    fn property_mut<T: Inspect>(&mut self, name: &str, what: &mut T, id_source: &mut u64);
 }
 
 impl UiExt for Ui {
@@ -73,7 +84,7 @@ impl UiExt for Ui {
         what.inspect_mut(self, *id_source);
         *id_source += 1;
     }
-    fn property<T: Inspect>(&mut self, name: &str, what: &mut T, id_source: &mut u64) {
+    fn property_mut<T: Inspect>(&mut self, name: &str, what: &mut T, id_source: &mut u64) {
         self.horizontal(|ui| {
             if ui
                 .add(egui::Label::new(name).sense(egui::Sense::click()))

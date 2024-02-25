@@ -9,8 +9,15 @@ use {
     },
 };
 
+/// Trait for inspecting a value of a type through egui.
 pub trait Inspect: Debug {
+    /// Inspect this value immutably.
+    ///
+    /// `id_source` provides a unique id that might be needed by egui.
     fn inspect(&self, ui: &mut Ui, id_source: u64);
+    /// Inspect this value mutably
+    ///
+    /// `id_source` provides a unique id that might be needed by egui.
     fn inspect_mut(&mut self, ui: &mut Ui, id_source: u64) {
         self.inspect(ui, id_source);
     }
