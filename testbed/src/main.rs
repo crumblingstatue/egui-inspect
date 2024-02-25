@@ -1,10 +1,9 @@
-use std::fmt::Debug;
-use std::marker::PhantomData;
-
-use eframe::{egui, App, Frame, NativeOptions};
-use egui_inspect::inspect;
-use egui_inspect::{derive::Inspect, Inspect};
-use rand::{distributions::Alphanumeric, prelude::SliceRandom, thread_rng, Rng};
+use {
+    eframe::{egui, App, Frame, NativeOptions},
+    egui_inspect::{derive::Inspect, inspect, Inspect},
+    rand::{distributions::Alphanumeric, prelude::SliceRandom, thread_rng, Rng},
+    std::{collections::HashMap, fmt::Debug, marker::PhantomData},
+};
 
 struct Testbed {
     entities: Vec<GameEntity>,
