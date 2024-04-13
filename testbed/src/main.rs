@@ -2,7 +2,7 @@ use {
     eframe::{egui, App, Frame, NativeOptions},
     egui_inspect::{derive::Inspect, inspect, Inspect},
     rand::{distributions::Alphanumeric, prelude::SliceRandom, thread_rng, Rng},
-    std::{collections::HashMap, fmt::Debug, marker::PhantomData},
+    std::{fmt::Debug, marker::PhantomData},
 };
 
 struct Testbed {
