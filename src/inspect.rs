@@ -52,6 +52,9 @@ impl<T: Default> InspectAddUi for T {
 impl<T: Inspect> Inspect for Vec<T> {
     fn inspect_mut(&mut self, ui: &mut Ui, mut id_source: u64) {
         T::inspect_add_ui(ui, self);
+        if ui.button("🗑").on_hover_text("Clear").clicked() {
+            self.clear();
+        }
         ui.inspect_iter_with_mut(
             &format!("Vec [{}]", self.len()),
             self,
