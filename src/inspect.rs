@@ -224,7 +224,7 @@ impl<K: Debug, V: Inspect, S> Inspect for HashMap<K, V, S> {
     }
 }
 
-impl<'a> Inspect for &'a str {
+impl Inspect for &'_ str {
     fn inspect(&self, ui: &mut Ui, _id_salt: u64) {
         if ui
             .add(egui::Label::new(*self).sense(egui::Sense::click()))
