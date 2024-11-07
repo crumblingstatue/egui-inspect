@@ -10,4 +10,4 @@ path = ".."
 
 [dependencies]
 rand = "0.8.5"
-eframe = "0.27.0"
+eframe = "0.29.0"

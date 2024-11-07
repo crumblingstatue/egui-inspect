@@ -142,7 +142,7 @@ fn main() {
     eframe::run_native(
         "egui-inspect testbed",
         NativeOptions::default(),
-        Box::new(|_cc| Box::<Testbed>::default()),
+        Box::new(|_cc| Ok(Box::<Testbed>::default())),
     )
     .unwrap();
 }
