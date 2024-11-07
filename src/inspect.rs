@@ -186,6 +186,17 @@ impl<T: Inspect, const N: usize> Inspect for [T; N] {
     }
 }
 
+impl<T: Inspect, const N: usize> Inspect for Box<[T; N]> {
+    fn inspect(&self, ui: &mut Ui, mut id_salt: u64) {
+        let arr: &[T; N] = self;
+        ui.inspect(arr, &mut id_salt);
+    }
+    fn inspect_mut(&mut self, ui: &mut Ui, mut id_salt: u64) {
+        let arr: &mut [T; N] = self;
+        ui.inspect(arr, &mut id_salt);
+    }
+}
+
 impl<K: Debug, V: Inspect, S> Inspect for HashMap<K, V, S> {
     fn inspect_mut(&mut self, ui: &mut Ui, id_salt: u64) {
         egui::CollapsingHeader::new(format!("HashMap [{}]", self.len()))
