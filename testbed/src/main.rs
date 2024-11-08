@@ -22,9 +22,14 @@ struct GameEntity {
     hp: i32,
     godmode: bool,
     dir: Dir,
+    /// Something with an opaque representation
+    ///
+    /// We either can't, or don't want to impl `Inspect`
+    /// for this field.
     #[opaque]
     #[allow(dead_code)]
     something_opaque: MyOpaque,
+    /// A field with a custom inspect function
     #[inspect_with(custom_inspect)]
     custom: MyOpaque,
     tuple: TupleStruct,

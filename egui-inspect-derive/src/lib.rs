@@ -65,10 +65,10 @@ pub fn derive_inspect(input: TokenStream) -> TokenStream {
                     Some(ident) => Member::from(ident.clone()),
                     None => Member::from(i),
                 };
+                let doc_comment_string = f.doc_comment_string();
                 match inspect_kind(&f.attrs) {
                     FieldInspectKind::Auto => {
                         let ident = &f.ident;
-                        let doc_comment_string = f.doc_comment_string();
                         exprs.push(quote! {
                             ui.horizontal(|ui| {
                                 let mut re = ui.add(::egui_inspect::egui::Label::new(stringify!(#ident)).sense(::egui_inspect::egui::Sense::click()));
@@ -85,14 +85,20 @@ pub fn derive_inspect(input: TokenStream) -> TokenStream {
                     FieldInspectKind::Opaque => {
                         exprs.push(quote! {
                             ui.horizontal(|ui| {
-                                ui.label(concat!(stringify!(#memb), " <opaque>"));
+                                let re = ui.label(concat!(stringify!(#memb), " <opaque>"));
+                                if !#doc_comment_string.is_empty()  {
+                                    re.on_hover_text(#doc_comment_string);
+                                }
                             });
                         });
                     }
                     FieldInspectKind::WithFn(fun) => {
                         exprs.push(quote! {
                             ui.horizontal(|ui| {
-                                ui.label(stringify!(#memb));
+                                let re = ui.label(stringify!(#memb));
+                                if !#doc_comment_string.is_empty()  {
+                                    re.on_hover_text(#doc_comment_string);
+                                }
                                 #fun(&mut self.#memb, ui, #i as u64)
                             });
                         });
