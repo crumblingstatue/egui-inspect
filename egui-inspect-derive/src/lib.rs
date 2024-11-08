@@ -1,7 +1,7 @@
 use {
     proc_macro::TokenStream,
     quote::quote,
-    syn::{parse_macro_input, Attribute, Data, DeriveInput, Member},
+    syn::{parse_macro_input, Attribute, Data, DeriveInput, Expr, Lit, Member, Meta},
 };
 
 enum FieldInspectKind {
@@ -27,6 +27,32 @@ fn inspect_kind(attrs: &[Attribute]) -> FieldInspectKind {
     FieldInspectKind::Auto
 }
 
+trait SynFieldExt {
+    fn doc_comment_string(&self) -> String;
+}
+
+impl SynFieldExt for syn::Field {
+    fn doc_comment_string(&self) -> String {
+        let mut out = String::new();
+
+        for attr in &self.attrs {
+            if attr.path().is_ident("doc") {
+                if let Meta::NameValue(meta_name_value) = &attr.meta {
+                    if let Expr::Lit(syn::ExprLit {
+                        lit: Lit::Str(s), ..
+                    }) = &meta_name_value.value
+                    {
+                        out.push_str(&s.value());
+                        out.push('\n');
+                    }
+                }
+            }
+        }
+
+        out.trim_end().to_string()
+    }
+}
+
 #[proc_macro_derive(Inspect, attributes(opaque, inspect_with))]
 pub fn derive_inspect(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
@@ -42,9 +68,14 @@ pub fn derive_inspect(input: TokenStream) -> TokenStream {
                 match inspect_kind(&f.attrs) {
                     FieldInspectKind::Auto => {
                         let ident = &f.ident;
+                        let doc_comment_string = f.doc_comment_string();
                         exprs.push(quote! {
                             ui.horizontal(|ui| {
-                                if ui.add(::egui_inspect::egui::Label::new(stringify!(#ident)).sense(::egui_inspect::egui::Sense::click())).clicked() {
+                                let mut re = ui.add(::egui_inspect::egui::Label::new(stringify!(#ident)).sense(::egui_inspect::egui::Sense::click()));
+                                if !#doc_comment_string.is_empty()  {
+                                    re = re.on_hover_text(#doc_comment_string);
+                                }
+                                if re.clicked() {
                                     ui.output_mut(|o| o.copied_text = format!("{:?}", self.#memb));
                                 }
                                 ::egui_inspect::Inspect::inspect_mut(&mut self.#memb, ui, #i as u64)

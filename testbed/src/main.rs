@@ -13,7 +13,11 @@ struct Testbed {
 
 #[derive(Inspect, Debug)]
 struct GameEntity {
+    /// The name of the game entity
     name: String,
+    /// A position vector
+    ///
+    /// Multiline explanation.
     position: Vector2,
     hp: i32,
     godmode: bool,
